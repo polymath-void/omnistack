@@ -370,6 +370,67 @@ src/api/stripe.ts:18:7 - error TS2304: Cannot find name 'StripeWebhookHeader'.
     pass('Drizzle ORM: 6 Studio Schemas & Column Type Integrity Verified', '(projects, scaffold_jobs, ast, ui, pr, swarm)');
   }
 
+  // =========================================================================
+  // TEST SUITE 7: Closed-Loop Self-Healing Pipeline & omnistack.db Persistence
+  // =========================================================================
+  header('TEST SUITE 7: Closed-Loop Self-Healing Pipeline & omnistack.db Persistence');
+  {
+    totalTests++;
+    const projectName = 'Live Verification Store';
+    const pipelineResult = await executeSelfHealingPipeline({
+      projectName,
+      prompt: 'Production-ready headless mechanical keyboard shop with WCAG AA compliance',
+      templateId: 'cybermech_01',
+    });
+
+    // 1. Result & Zero Compiler Diagnostics Verification
+    assert.strictEqual(pipelineResult.status, 'COMPLETED');
+    assert.strictEqual(pipelineResult.auditReport.diagnosticsChecked, 0);
+    assert.strictEqual(pipelineResult.auditReport.diagnosticsPassed, true);
+    assert.strictEqual(pipelineResult.auditReport.healingAttempts, 0);
+
+    // 2. Vision Audit OKLab Contrast Solver & AST Patch
+    assert.strictEqual(pipelineResult.auditReport.contrastViolationsFound, 1);
+    assert.strictEqual(pipelineResult.auditReport.contrastPatchesApplied, 1);
+    assert.strictEqual(pipelineResult.auditReport.status, 'HEALED');
+    assert.ok(pipelineResult.appliedPatches.some((p) => p.includes('text-gray-500 ➔ text-gray-400')));
+
+    // 3. Clean In-Memory ZIP Archive Verification
+    assert.ok(pipelineResult.artifactZipBuffer instanceof Buffer);
+    assert.ok(pipelineResult.zipSizeBytes > 1000);
+    // Magic bytes PK\x03\x04
+    assert.strictEqual(pipelineResult.artifactZipBuffer[0], 0x50);
+    assert.strictEqual(pipelineResult.artifactZipBuffer[1], 0x4b);
+    assert.strictEqual(pipelineResult.artifactZipBuffer[2], 0x03);
+    assert.strictEqual(pipelineResult.artifactZipBuffer[3], 0x04);
+
+    // 4. Persistence into omnistack.db via @omnistack/db
+    const db = getDatabase();
+    const projectsRepo = new ProjectsRepository(db);
+    const jobsRepo = new ScaffoldJobsRepository(db);
+    const auditsRepo = new UIAuditsRepository(db);
+
+    const projRecord = projectsRepo.getById(pipelineResult.projectId);
+    assert.ok(projRecord, `Project ${pipelineResult.projectId} must be saved in omnistack.db`);
+    assert.strictEqual(projRecord.name, projectName);
+    assert.strictEqual(projRecord.status, 'ready');
+
+    const jobRecord = jobsRepo.getById(pipelineResult.jobId);
+    assert.ok(jobRecord, `Job ${pipelineResult.jobId} must be saved in omnistack.db`);
+    assert.strictEqual(jobRecord.project_id, pipelineResult.projectId);
+    assert.strictEqual(jobRecord.current_step, 'done');
+    assert.strictEqual(jobRecord.progress_percent, 100);
+
+    const auditRecords = auditsRepo.listByProject(pipelineResult.projectId);
+    assert.ok(auditRecords.length > 0, 'UI Audit record must exist in omnistack.db');
+
+    passedTests++;
+    pass(
+      'Closed-Loop Self-Healing Pipeline: 0 Diagnostics, Clean ZIP & omnistack.db Synced',
+      `(${pipelineResult.zipSizeBytes} bytes ZIP, 1 contrast patch, Project & Job persisted)`
+    );
+  }
+
   const duration = (performance.now() - globalStart).toFixed(2);
   console.log(`\n${colors.green}${colors.bold}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${colors.reset}`);
   console.log(`${colors.green}${colors.bold}  ALL ${passedTests}/${totalTests} ENGINE SUITES PASSED IN ${duration}ms! [100% SUCCESS]${colors.reset}`);
