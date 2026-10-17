@@ -146,6 +146,11 @@ export class ProjectsRepository {
     return (stmt.get(id) as unknown as ProjectRecord) ?? null;
   }
 
+  public getBySlug(slug: string): ProjectRecord | null {
+    const stmt = this.db.db.prepare('SELECT * FROM projects WHERE slug = ?');
+    return (stmt.get(slug) as unknown as ProjectRecord) ?? null;
+  }
+
   public list(limit = 50): ProjectRecord[] {
     const stmt = this.db.db.prepare('SELECT * FROM projects ORDER BY created_at DESC LIMIT ?');
     return stmt.all(limit) as unknown as ProjectRecord[];
@@ -154,6 +159,11 @@ export class ProjectsRepository {
   public updateStatus(id: string, status: string): void {
     const stmt = this.db.db.prepare('UPDATE projects SET status = ?, updated_at = ? WHERE id = ?');
     stmt.run(status, Date.now(), id);
+  }
+
+  public delete(id: string): void {
+    const stmt = this.db.db.prepare('DELETE FROM projects WHERE id = ?');
+    stmt.run(id);
   }
 }
 

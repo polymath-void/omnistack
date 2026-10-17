@@ -70,7 +70,8 @@ export async function executeSelfHealingPipeline(spec: PipelineSpec): Promise<Pi
 
   const projectId = `proj_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
   const jobId = `job_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
-  const slug = spec.projectName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const baseSlug = spec.projectName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'store';
+  const slug = `${baseSlug}-${Date.now().toString(36)}`;
 
   // 1. Resolve template
   const template = (spec.templateId ? getTemplateById(spec.templateId) : null) ?? TEMPLATES_CATALOG[0]!;

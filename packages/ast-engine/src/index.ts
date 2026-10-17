@@ -82,7 +82,9 @@ export {
   type LivingDocsManifest,
   formatPropsTableMarkdown,
   generateComponentMDX,
+  compileComponentMDX,
   generatePlaygroundHTML,
+  renderPlaygroundHTML,
   generateLivingDocsManifest,
 } from './docgen.js';
 

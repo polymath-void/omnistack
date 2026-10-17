@@ -187,3 +187,8 @@ export function generateLivingDocsManifest(
     components: items,
   };
 }
+
+// Interop aliases
+export const compileComponentMDX = generateComponentMDX;
+export const renderPlaygroundHTML = generatePlaygroundHTML;
+

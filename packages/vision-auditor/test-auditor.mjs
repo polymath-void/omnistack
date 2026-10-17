@@ -63,6 +63,34 @@ console.log('Delta E:', solution.deltaE);
 assert(solution.resolvedContrastRatio >= 4.5, `Resolved ratio must be >= 4.5, got ${solution.resolvedContrastRatio}`);
 assert(solution.replacementClass.startsWith('text-gray-'), `Should preserve brand hue family 'gray', got ${solution.replacementClass}`);
 
+console.log('--- Testing Remediation of text-gray-500 on #000000 ---');
+// text-gray-500 is #6b7280
+const gray500 = parseCssColor('#6b7280');
+const evalGray500Black = evaluateContrast(gray500, black);
+console.log(`Contrast ratio of #6b7280 on black (#000000): ${evalGray500Black.ratio}:1`);
+assert(evalGray500Black.ratio < 4.5, `gray-500 on black should fail AA (< 4.5), got ${evalGray500Black.ratio}`);
+assert(!evalGray500Black.passesAA, 'Should not pass AA');
+
+const solutionGray500Black = solveContrastViolation({
+  foreground: gray500,
+  background: black,
+  targetRatio: 4.5,
+  originalClass: 'text-gray-500',
+  property: 'text',
+});
+
+assert(solutionGray500Black !== null, 'Solution for gray-500 on black should not be null');
+console.log('Original Class:', solutionGray500Black.originalClass);
+console.log('Recommended Replacement:', solutionGray500Black.replacementClass);
+console.log('Initial Ratio:', solutionGray500Black.initialContrastRatio);
+console.log('Resolved Ratio:', solutionGray500Black.resolvedContrastRatio);
+console.log('Delta E:', solutionGray500Black.deltaE);
+
+assert(solutionGray500Black.resolvedContrastRatio >= 4.5, `Resolved ratio must be >= 4.5, got ${solutionGray500Black.resolvedContrastRatio}`);
+assert(solutionGray500Black.replacementClass === 'text-gray-400', `Expected replacement to be 'text-gray-400', got ${solutionGray500Black.replacementClass}`);
+assert(solutionGray500Black.recommendedToken.hex === '#9ca3af', `Expected recommendedToken hex #9ca3af, got ${solutionGray500Black.recommendedToken.hex}`);
+console.log('Remediation of text-gray-500 on black - PASS');
+
 console.log('--- Testing Viewport Profiles ---');
 assert(VIEWPORT_PROFILES.mobile.width === 390 && VIEWPORT_PROFILES.mobile.height === 844 && VIEWPORT_PROFILES.mobile.deviceScaleFactor === 3.0, 'Mobile profile match');
 assert(VIEWPORT_PROFILES.tablet.width === 768 && VIEWPORT_PROFILES.tablet.height === 1024 && VIEWPORT_PROFILES.tablet.deviceScaleFactor === 2.0, 'Tablet profile match');

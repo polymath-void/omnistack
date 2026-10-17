@@ -22,6 +22,7 @@ import {
   createZipArchive,
   parseTypeScriptDiagnostics,
   extractSnippet,
+  executeSelfHealingPipeline,
 } from '@omnistack/scaffolder-core';
 
 // Engine 2: AST Engine
@@ -34,6 +35,12 @@ import {
   MANAGED_START_SENTINEL,
   MANAGED_END_SENTINEL,
 } from '@omnistack/ast-engine';
+
+// Living Docs & Component Playground Renderer
+import {
+  compileComponentMDX,
+  renderPlaygroundHTML,
+} from '@omnistack/docgen-renderer';
 
 // Engine 3: Vision Auditor
 import {
@@ -53,8 +60,14 @@ import {
   createPairingSession,
 } from '@omnistack/github-bridge';
 
-// Database Schemas
+// Database Schemas & Repositories
 import * as dbSchema from '@omnistack/db';
+import {
+  getDatabase,
+  ProjectsRepository,
+  ScaffoldJobsRepository,
+  UIAuditsRepository,
+} from '@omnistack/db';
 
 const colors = {
   reset: '\x1b[0m',
@@ -193,8 +206,23 @@ export function PricingCard({ planName, pricePerMonth, featured = false }: Prici
     assert.ok(tailwindPatch.code.includes('text-gray-500'));
     assert.ok(!tailwindPatch.code.includes('text-gray-400'));
 
+    // 6. Living MDX DocGen & Responsive Playground Compilation
+    const mdx = compileComponentMDX(metadata, mockData);
+    assert.ok(mdx.includes('# `<PricingCard />`'));
+    assert.ok(mdx.includes('src="/_forge/playground/PricingCard"'));
+    assert.ok(mdx.includes('| `planName` | `string` | **Yes** |'));
+
+    const html = renderPlaygroundHTML(metadata, mockData);
+    assert.ok(html.includes('PricingCard - OmniStack Component Playground'));
+    assert.ok(html.includes('@media (max-width: 860px)'));
+    assert.ok(html.includes('id="vp_mobile"'));
+    assert.ok(html.includes('id="prop_planName"'));
+    assert.ok(html.includes('type="number" id="prop_pricePerMonth"'));
+    assert.ok(html.includes('type="checkbox" id="prop_featured"'));
+    assert.ok(html.includes('OMNISTACK_PLAYGROUND_PROPS'));
+
     passedTests++;
-    pass('AST Engine: SWC AST + Prop Schema + Faker Mock + Recast Sentinel Patching', `(${propKeys.length} props, seed=1337)`);
+    pass('AST Engine & DocGen: SWC AST + Prop Schema + MDX DocGen + Responsive Playground', `(${propKeys.length} props, seed=1337)`);
   }
 
   // =========================================================================

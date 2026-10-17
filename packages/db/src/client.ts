@@ -19,11 +19,14 @@ export class OmniDatabase {
 
   constructor(config: DatabaseConfig = {}) {
     const rawPath = config.dbPath ?? process.env['OMNISTACK_DB_PATH'] ?? 'omnistack.db';
-    this.dbPath = path.isAbsolute(rawPath) ? rawPath : path.resolve(process.cwd(), rawPath);
-
-    const dir = path.dirname(this.dbPath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+    if (rawPath === ':memory:') {
+      this.dbPath = ':memory:';
+    } else {
+      this.dbPath = path.isAbsolute(rawPath) ? rawPath : path.resolve(process.cwd(), rawPath);
+      const dir = path.dirname(this.dbPath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
     }
 
     this.db = new DatabaseSync(this.dbPath);
