@@ -1,0 +1,19 @@
+{
+  "name": "@omnistack/mobile",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@omnistack/github-bridge": "*",
+    "@omnistack/types": "*",
+    "react": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^5.5.4"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@omnistack/vision-auditor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "node test-auditor.mjs"
+  },
+  "dependencies": {
+    "@axe-core/puppeteer": "^4.14.0",
+    "@omnistack/types": "*",
+    "puppeteer": "^25.14.0",
+    "puppeteer-core": "^25.14.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}

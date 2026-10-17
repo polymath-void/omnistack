@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.turbo/
+.next/
+*.tsbuildinfo
+reports/
+*.log
+omnistack.db*
+.env*
+.DS_Store
+Thumbs.db
+

@@ -1,0 +1,34 @@
+{
+  "name": "@omnistack/ast-engine",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "node test-verify.mjs"
+  },
+  "dependencies": {
+    "@babel/parser": "^8.0.7",
+    "@faker-js/faker": "^10.6.0",
+    "@omnistack/types": "*",
+    "@swc/core": "^1.16.18",
+    "graphlib": "^2.1.8",
+    "recast": "^0.24.0",
+    "ts-morph": "^28.0.0"
+  },
+  "devDependencies": {
+    "@types/graphlib": "^2.1.12",
+    "@types/node": "^26.6.5",
+    "typescript": "^5.5.4"
+  }
+}

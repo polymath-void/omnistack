@@ -1,0 +1,28 @@
+{
+  "name": "@omnistack/forge-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OmniStack Forge - Autonomous Full-Stack Software Studio",
+  "packageManager": "npm@11.19.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build --concurrency=2",
+    "dev": "turbo run dev --concurrency=1",
+    "test": "turbo run test --concurrency=1",
+    "test:live": "node scripts/live-test.mjs",
+    "lint": "turbo run lint --concurrency=2",
+    "audit": "turbo run audit --concurrency=1",
+    "clean": "turbo run clean",
+    "typecheck": "turbo run typecheck --concurrency=2"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

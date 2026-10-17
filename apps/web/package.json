@@ -1,0 +1,16 @@
+{
+  "name": "@omnistack/web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@omnistack/types": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}

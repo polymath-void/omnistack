@@ -1,0 +1,40 @@
+# ==============================================================================
+# OmniStack Forge - Deterministic Ephemeral Sandbox (Dockerfile.sandbox)
+# Reference: Blueprint Section 3.1, 4.3, 8.2 | CPU Resource Governance Rule 3
+# ==============================================================================
+
+# Node.js LTS minimal Alpine base image
+FROM node:22-alpine AS sandbox-base
+
+# Install essential system dependencies and init supervisor
+RUN apk add --no-cache bash git dumb-init
+
+# Setup isolated workspace and cache directories
+WORKDIR /sandbox
+
+# Prepare non-root workspace permissions for the 'node' unprivileged user (UID: 1000, GID: 1000)
+RUN mkdir -p /sandbox /tmp/sandbox-cache /home/node/.npm && \
+    chown -R node:node /sandbox /tmp/sandbox-cache /home/node
+
+# Copy compilation entrypoint script into system bin and make executable
+COPY --chown=node:node docker/sandbox-entrypoint.sh /usr/local/bin/sandbox-entrypoint.sh
+RUN chmod +x /usr/local/bin/sandbox-entrypoint.sh
+
+# Switch to unprivileged user for all container operations
+USER node
+
+# Enforce secure environment defaults for offline, non-interactive compilation
+ENV NODE_ENV=production \
+    CI=true \
+    HOME=/sandbox \
+    TMPDIR=/tmp \
+    NPM_CONFIG_UPDATE_NOTIFIER=false \
+    NPM_CONFIG_AUDIT=false \
+    NPM_CONFIG_FUND=false \
+    NPM_CONFIG_CACHE=/tmp/sandbox-cache/npm
+
+# Use dumb-init as PID 1 to ensure proper signal forwarding and sub-process reaping
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "/usr/local/bin/sandbox-entrypoint.sh"]
+
+# Default command triggers deterministic verification pass
+CMD ["compile"]

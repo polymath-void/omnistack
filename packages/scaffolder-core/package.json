@@ -1,0 +1,34 @@
+{
+  "name": "@omnistack/scaffolder-core",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test dist/**/*.test.js"
+  },
+  "dependencies": {
+    "@omnistack/types": "*",
+    "@omnistack/ast-engine": "*",
+    "@omnistack/vision-auditor": "*",
+    "@omnistack/db": "*",
+    "@omnistack/templates": "*",
+    "archiver": "8.0.0",
+    "memfs": "4.80.0"
+  },
+  "devDependencies": {
+    "@types/archiver": "^8.0.0",
+    "@types/node": "^26.6.5",
+    "typescript": "^5.5.4"
+  }
+}

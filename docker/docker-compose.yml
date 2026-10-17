@@ -1,0 +1,90 @@
+version: '3.8'
+
+# ==============================================================================
+# OmniStack Forge - Multi-Service Production & Sandbox Orchestration
+# References: Blueprint Section 8.1, 8.2 | CPU Resource Governance Rule 3
+# ==============================================================================
+
+services:
+  # Master API Gateway & Studio Orchestrator
+  omnistack-gateway:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DATABASE_URL=file:/data/omnistack.db
+      - GITHUB_APP_ID=${GITHUB_APP_ID}
+      - GITHUB_PRIVATE_KEY=${GITHUB_PRIVATE_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    volumes:
+      - omnistack-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock # Spawns ephemeral sandbox containers
+    restart: always
+
+  # Living Documentation & MDX Sandbox Renderer
+  omnistack-docgen:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.docgen
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+    restart: always
+
+  # Ephemeral Isolated Compilation Sandbox
+  # Enforces CPU Resource Governance, zero-network security, and read-only root
+  omnistack-sandbox:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.sandbox
+    image: omnistack-sandbox:latest
+    container_name: omnistack-sandbox
+    # Security Isolation Mandates (Section 8.2 & Agent Architecture 4.4)
+    network_mode: "none"            # Completely isolated offline execution post-hydration
+    read_only: true                 # Immutable root filesystem
+    user: "1000:1000"               # Dedicated unprivileged node user
+    security_opt:
+      - no-new-privileges:true      # Disallow privilege escalation
+    cap_drop:
+      - ALL                         # Drop all Linux kernel capabilities
+    pids_limit: 100                 # Prevent fork bombs and thread starvation
+    
+    # Laptop Resource Governance Mandates (CPU_RESOURCE_GOVERNANCE.md Rule 3)
+    # Strict quotas: max 1.5 CPUs, 1.5GB RAM ceiling, 2048MB memory-swap
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1536M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    mem_limit: 1536m
+    memswap_limit: 2048m
+    cpus: 1.5
+
+    # Writable memory-backed tmpfs for compiler intermediates under read-only root
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=256m
+      - /sandbox/.next/cache:rw,size=512m
+      - /sandbox/dist:rw,size=256m
+      - /home/node/.npm:rw,noexec,nosuid,size=128m
+
+    environment:
+      - NODE_ENV=production
+      - CI=true
+      - TMPDIR=/tmp
+      - NPM_CONFIG_UPDATE_NOTIFIER=false
+      - NPM_CONFIG_AUDIT=false
+      - NPM_CONFIG_FUND=false
+    
+    stdin_open: false
+    tty: false
+    restart: "no"                   # Ephemeral container: never restart automatically
+
+volumes:
+  omnistack-data:

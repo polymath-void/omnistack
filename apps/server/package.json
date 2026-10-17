@@ -1,0 +1,28 @@
+{
+  "name": "@omnistack/server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@omnistack/ast-engine": "*",
+    "@omnistack/db": "*",
+    "@omnistack/github-bridge": "*",
+    "@omnistack/scaffolder-core": "*",
+    "@omnistack/types": "*",
+    "@omnistack/templates": "*",
+    "@omnistack/vision-auditor": "*",
+    "@omnistack/docgen-renderer": "*",
+    "@omnistack/mobile": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^5.5.4"
+  }
+}
